@@ -22,7 +22,7 @@ export function getCommands(): Record<string, CLICommand> {
       callback: commandMapForward,
     },
     mapb: {
-      name: "map",
+      name: "mapb",
       description: "Get the previous page of locations",
       callback: commandMapBack,
     }
