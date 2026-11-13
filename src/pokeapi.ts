@@ -12,6 +12,29 @@ export class PokeAPI {
     this.cache.stopReapLoop();
   }
 
+  async fetchPokemon(pokemonName: string): Promise<Pokemon> {
+    const url = `${PokeAPI.baseURL}/pokemon/${pokemonName}`;
+    const cached = this.cache.get<Pokemon>(url);
+    if (cached !== undefined) {
+      console.log("cache hit");
+      return cached;
+    }
+
+    try {
+      const resp = await fetch(url);
+
+      if (!resp.ok) {
+        throw new Error(`${resp.status} ${resp.statusText}`);
+      }
+
+      const pokemon: Pokemon = await resp.json();
+      this.cache.add<Pokemon>(url, pokemon);
+      return pokemon;
+    } catch (e) {
+      throw new Error(`Error fetching pokemon: ${(e as Error).message}`);
+    }
+  }
+
   async fetchLocations(pageURL?: string): Promise<ShallowLocations> {
     const url = pageURL || `${PokeAPI.baseURL}/location-area`;
     const cached = this.cache.get<ShallowLocations>(url);
@@ -60,6 +83,11 @@ export class PokeAPI {
     }
   }
 }
+
+export type Pokemon = {
+  name: string;
+  base_experience: number;
+};
 
 export type ShallowLocations = {
   count: number;
